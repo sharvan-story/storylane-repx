@@ -1,0 +1,310 @@
+/*
+ * Storylane RepX settings page.
+ * Storylane design system tokens, 8-point grid, Inter Display. Scoped to .slx so
+ * nothing leaks into the rest of the WordPress admin.
+ */
+
+@font-face {
+	font-family: "Storylane Inter";
+	src: url("inter-latin.woff2") format("woff2-variations"), url("inter-latin.woff2") format("woff2");
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+.slx {
+	--slx-garnet-dark: #13010c;
+	--slx-garnet: #3b0721;
+	--slx-garnet-light: #61053c;
+	--slx-light-yellow: #f0ecc7;
+	--slx-off-white: #faf9f6;
+	--slx-green: #1e6263;
+	--slx-pale-blue: #e4f7f7;
+	--slx-type-dark: #13010c;
+	--slx-type-secondary: #625059;
+	--slx-type-tertiary: #b7a2ac;
+	--slx-white: #ffffff;
+	--slx-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+	max-width: 768px;
+	margin-top: 32px;
+	color: var(--slx-type-dark);
+	font-family: "Storylane Inter", "Inter Variable", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+	font-variation-settings: "opsz" 32;
+	font-size: 16px;
+	line-height: 24px;
+	letter-spacing: -0.01em;
+}
+
+.slx *,
+.slx *::before,
+.slx *::after {
+	box-sizing: border-box;
+}
+
+/* Header */
+.slx-header {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	margin-bottom: 32px;
+}
+
+.slx .slx-title {
+	margin: 0;
+	padding: 0;
+	line-height: 0;
+}
+
+.slx-title img {
+	display: block;
+	height: 32px;
+	width: auto;
+}
+
+.slx-lede {
+	margin: 0;
+	max-width: 64ch;
+	color: var(--slx-type-secondary);
+	font-size: 16px;
+	line-height: 24px;
+}
+
+/* Steps */
+.slx-steps {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.slx-step {
+	margin: 0;
+	display: grid;
+	grid-template-columns: 32px minmax(0, 1fr);
+	gap: 16px;
+	padding: 32px;
+	background: var(--slx-white);
+	border: 1px solid var(--slx-light-yellow);
+	border-radius: 4px;
+}
+
+.slx-step-num {
+	color: var(--slx-type-secondary);
+	font-size: 14px;
+	line-height: 24px;
+	font-weight: 500;
+	font-variant-numeric: tabular-nums;
+}
+
+.slx-step-body {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 0;
+}
+
+.slx .slx-step-title {
+	margin: 0;
+	padding: 0;
+	color: var(--slx-type-dark);
+	font-size: 18px;
+	line-height: 24px;
+	font-weight: 500;
+	letter-spacing: -0.01em;
+}
+
+.slx .slx-step-text {
+	margin: 0;
+	color: var(--slx-type-secondary);
+	font-size: 16px;
+	line-height: 24px;
+}
+
+.slx .slx-actions {
+	margin: 8px 0 0;
+}
+
+/* Links */
+.slx a {
+	color: var(--slx-garnet-light);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 3px;
+}
+
+.slx a:focus {
+	box-shadow: none;
+}
+
+.slx-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-weight: 500;
+}
+
+.slx-ext {
+	flex: none;
+}
+
+/* Script field */
+.slx-label {
+	margin-top: 16px;
+	font-size: 14px;
+	line-height: 24px;
+	font-weight: 500;
+	color: var(--slx-type-dark);
+}
+
+.slx .slx-input {
+	width: 100%;
+	min-height: 96px;
+	margin: 0;
+	padding: 16px;
+	color: var(--slx-type-dark);
+	background: var(--slx-off-white);
+	border: 1px solid var(--slx-type-tertiary);
+	border-radius: 4px;
+	box-shadow: none;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 13px;
+	line-height: 24px;
+	letter-spacing: 0;
+	resize: vertical;
+}
+
+.slx .slx-input::placeholder {
+	color: var(--slx-type-secondary);
+	opacity: 0.6;
+}
+
+.slx .slx-input:focus {
+	border-color: var(--slx-garnet-light);
+	box-shadow: 0 0 0 1px var(--slx-garnet-light);
+	outline: none;
+}
+
+/* Status */
+.slx-status-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 16px;
+	margin-top: 16px;
+}
+
+.slx-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	height: 32px;
+	padding: 0 16px;
+	border-radius: 16px;
+	font-size: 14px;
+	line-height: 24px;
+	font-weight: 500;
+}
+
+.slx-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: currentColor;
+}
+
+.slx-status.is-live {
+	color: var(--slx-green);
+	background: var(--slx-pale-blue);
+}
+
+.slx-status.is-off,
+.slx-status.is-empty {
+	color: var(--slx-type-secondary);
+	background: var(--slx-off-white);
+	box-shadow: inset 0 0 0 1px var(--slx-light-yellow);
+}
+
+.slx-status.is-empty .slx-dot {
+	background: transparent;
+	box-shadow: inset 0 0 0 1.5px currentColor;
+}
+
+/* Buttons */
+.slx .slx-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: 40px;
+	margin: 0;
+	padding: 0 24px;
+	border-radius: 4px;
+	font: inherit;
+	font-size: 14px;
+	line-height: 24px;
+	font-weight: 500;
+	letter-spacing: -0.01em;
+	text-decoration: none;
+	cursor: pointer;
+	transition: transform 160ms var(--slx-ease-out), background-color 150ms ease, border-color 150ms ease;
+}
+
+.slx .slx-btn:active {
+	transform: scale(0.97);
+}
+
+.slx .slx-btn:focus-visible,
+.slx a:focus-visible {
+	outline: 2px solid var(--slx-garnet-light);
+	outline-offset: 2px;
+}
+
+.slx .slx-btn-primary {
+	color: var(--slx-white);
+	background: var(--slx-garnet-light);
+	border: 1px solid var(--slx-garnet-light);
+}
+
+.slx .slx-btn-outline {
+	color: var(--slx-garnet);
+	background: var(--slx-white);
+	border: 1px solid var(--slx-type-tertiary);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.slx .slx-btn-primary:hover {
+		background: var(--slx-garnet);
+		border-color: var(--slx-garnet);
+		color: var(--slx-white);
+	}
+
+	.slx .slx-btn-outline:hover {
+		border-color: var(--slx-garnet);
+		color: var(--slx-garnet);
+	}
+}
+
+.slx-footer {
+	margin: 24px 0 0;
+}
+
+/* Small screens: number sits above the step. */
+@media (max-width: 600px) {
+	.slx-step {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 8px;
+		padding: 24px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.slx .slx-btn {
+		transition: background-color 150ms ease, border-color 150ms ease;
+	}
+
+	.slx .slx-btn:active {
+		transform: none;
+	}
+}

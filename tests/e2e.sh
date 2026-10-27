@@ -15,7 +15,7 @@ curl -s -o /dev/null "$BASE/"
 curl -s -c "$J" -b "$J" -o /dev/null "$BASE/wp-login.php"
 curl -s -c "$J" -b "$J" -o /dev/null -d "log=admin&pwd=password&wp-submit=Log+In&redirect_to=$BASE/wp-admin/&testcookie=1" "$BASE/wp-login.php"
 
-# save <script> <enabled(1|"")>  -> prints the settings page after redirect
+# save <script> [action: save|on|off]  -> prints the settings page after redirect
 save(){
   local page nonce
   page="$(curl -s -b "$J" -c "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx")"
@@ -23,7 +23,7 @@ save(){
   local args=(--data-urlencode "option_page=storylane_repx" --data-urlencode "action=update" --data-urlencode "_wpnonce=$nonce"
     --data-urlencode "_wp_http_referer=/wp-admin/options-general.php?page=storylane-repx"
     --data-urlencode "storylane_repx_settings[script]=$1")
-  [ -n "$2" ] && args+=(--data-urlencode "storylane_repx_settings[enabled]=1")
+  args+=(--data-urlencode "storylane_repx_settings[action]=${2:-save}")
   curl -s -L -b "$J" -c "$J" "${args[@]}" "$BASE/wp-admin/options.php"
 }
 tag(){ echo "<script src=\"https://js.storylane.io/js/v1/repx.js\" data-id=\"$1\" async></script>"; }
@@ -33,25 +33,23 @@ front(){ curl -s -L -b "$ANON" "$BASE/?nocache=$RANDOM"; }
 
 echo "== Test 2: saving"
 # Reset to a different ID first so the checks cannot pass on a value left by a previous run.
-save "$(tag resetid000)" 1 >/dev/null; f="$(field)"; [[ "$f" == *resetid000* ]] && ok "reset to sentinel ID" || no "reset to sentinel ID: [$f]"
-out="$(save '<script src="https://js.storylane.io/js/v1/repx.js" data-id="MBTX79fn0yum" async></script>' 1)"
+save "$(tag resetid000)" >/dev/null; f="$(field)"; [[ "$f" == *resetid000* ]] && ok "reset to sentinel ID" || no "reset to sentinel ID: [$f]"
+out="$(save '<script src="https://js.storylane.io/js/v1/repx.js" data-id="MBTX79fn0yum" async></script>')"
 echo "$out" | grep -qi "Settings saved" && ok "success notice shown" || no "success notice"
 f="$(field)"; [[ "$f" == *'data-id=&quot;mbtx79fn0yum&quot;'* || "$f" == *'data-id="mbtx79fn0yum"'* ]] && ok "script saved, box shows the full script with the ID" || no "script save: [$f]"
 [[ "$f" == *js.storylane.io/js/v1/repx.js* ]] && ok "box shows a script, not a bare ID" || no "box content"
-out="$(save "<script data-id='abcdef123' src='https://js.storylane.io/js/v1/repx.js'></script>" 1)"; f="$(field)"; [[ "$f" == *abcdef123* ]] && ok "single-quoted script" || no "single quotes"
-save "$(tag mbtx79fn0yum)" 1 >/dev/null
+out="$(save "<script data-id='abcdef123' src='https://js.storylane.io/js/v1/repx.js'></script>")"; f="$(field)"; [[ "$f" == *abcdef123* ]] && ok "single-quoted script" || no "single quotes"
+save "$(tag mbtx79fn0yum)" >/dev/null
 for bad in 'mbtx79fn0yum' 'not a valid script!!' '<script src="https://example.com/x.js" data-id="mbtx79fn0yum"></script>' "$(tag ab)"; do
-  out="$(save "$bad" 1)"
+  out="$(save "$bad")"
   echo "$out" | grep -q "That is not a RepX script" && ok "rejected: ${bad:0:40}" || no "not rejected: $bad"
 done
 [ "$(echo "$out" | grep -c 'That is not a RepX script')" -eq 1 ] && ok "error shown once" || no "error duplicated"
 f="$(field)"; [[ "$f" == *mbtx79fn0yum* ]] && ok "old value kept after bad input" || no "old value kept"
 curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx" | grep -qiE 'name="[^"]*\[location\]"|Only the ID is saved' && no "location option or ID note still present" || ok "no location option, no ID note"
-p="$(curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx")"
-[ "$(echo "$p" | grep -n 'storylane-repx-enabled' | head -1 | cut -d: -f1)" -lt "$(echo "$p" | grep -n 'storylane-repx-script' | head -1 | cut -d: -f1)" ] && ok "Show RepX toggle is above the script box" || no "toggle order"
 
 echo "== Test 3: front end"
-save "$(tag mbtx79fn0yum)" 1 >/dev/null
+save "$(tag mbtx79fn0yum)" >/dev/null
 h="$(front)"
 echo "$h" | grep -o '<script[^>]*repx.js[^>]*>'
 [ "$(echo "$h" | grep -c 'js.storylane.io/js/v1/repx.js')" -eq 1 ] && ok "exactly one script tag" || no "count"
@@ -64,11 +62,23 @@ pos=$(echo "$h" | grep -n 'repx.js' | head -1 | cut -d: -f1); hend=$(echo "$h" |
 curl -s -b "$ANON" "$BASE/?feed=rss2" | grep -q repx.js && no "script in feed" || ok "not in feed"
 curl -s -b "$ANON" "$BASE/wp-json/" | grep -q repx.js && no "script in REST" || ok "not in REST"
 curl -s -b "$J" "$BASE/wp-admin/index.php" | grep -q repx.js && no "script in admin" || ok "not in admin"
-save "$(tag mbtx79fn0yum)" "" >/dev/null; h="$(front)"
-echo "$h" | grep -q repx.js && no "printed while disabled" || ok "nothing when disabled"
+save "$(tag mbtx79fn0yum)" off >/dev/null; h="$(front)"
+echo "$h" | grep -q repx.js && no "printed while turned off" || ok "nothing when turned off"
+f="$(field)"; [[ "$f" == *mbtx79fn0yum* ]] && ok "script kept when turned off" || no "script lost when turned off"
+curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx" | grep -q "RepX is off" && ok "status shows off" || no "status off"
+save "$(tag mbtx79fn0yum)" >/dev/null; h="$(front)"
+echo "$h" | grep -q repx.js && no "saving the same script turned it back on" || ok "saving the same script keeps it off"
+save "$(tag mbtx79fn0yum)" on >/dev/null; h="$(front)"
+echo "$h" | grep -q repx.js && ok "turn on brings it back" || no "turn on"
+curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx" | grep -q "RepX is live on this site" && ok "status shows live" || no "status live"
+save "" >/dev/null; h="$(front)"
+echo "$h" | grep -q repx.js && no "printed with empty script" || ok "clearing the script removes RepX"
+curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx" | grep -q "Not set up yet" && ok "status shows not set up" || no "status empty"
+curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx" | grep -q "storylane-repx/assets/admin.css" && ok "page styles load on the RepX page" || no "admin.css not enqueued"
+curl -s -b "$J" "$BASE/wp-admin/index.php" | grep -q "storylane-repx/assets/admin.css" && no "styles leak onto other admin pages" || ok "styles only on the RepX page"
 
 echo "== Test 1: PHP notices (WP_DEBUG_DISPLAY on) in settings page and front end"
-save "$(tag mbtx79fn0yum)" 1 >/dev/null
+save "$(tag mbtx79fn0yum)" >/dev/null
 for u in "$BASE/wp-admin/options-general.php?page=storylane-repx" "$BASE/wp-admin/plugins.php"; do
   curl -s -b "$J" "$u" | grep -E -i "(<b>)?(Notice|Warning|Deprecated|Fatal error)(</b>)?:" && no "notice at $u" || ok "no PHP notices at $u"
 done

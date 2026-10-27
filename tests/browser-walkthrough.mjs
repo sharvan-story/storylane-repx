@@ -26,10 +26,10 @@ await page.goto(`${BASE}/wp-admin/options-general.php?page=storylane-repx`, { wa
 // Playground auto-login may redirect first; land on the settings page.
 if (!page.url().includes("page=storylane-repx")) await page.goto(`${BASE}/wp-admin/options-general.php?page=storylane-repx`);
 log("STEP3 page title:", await page.locator("h1").first().innerText());
-await page.check("#storylane-repx-enabled");
 await page.fill("#storylane-repx-script", SNIPPET);
 await page.click("#submit");
 await page.waitForLoadState("domcontentloaded");
+expect(await page.locator("#storylane-repx-status").innerText() === "RepX is live on this site", "status shows RepX is live after first save");
 const notice = await page.locator(".notice, .updated, .error").allInnerTexts();
 log("STEP3 notices:", JSON.stringify(notice));
 const v3 = await page.inputValue("#storylane-repx-script");

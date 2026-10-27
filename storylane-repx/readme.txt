@@ -28,9 +28,9 @@ This plugin installs RepX on your WordPress site. You paste your RepX script onc
 
 = Setup in 3 steps =
 
-1. Copy your RepX script from your Storylane account.
-2. Go to Settings > RepX in WordPress and tick "Show RepX on my site".
-3. Paste the script and save.
+1. Sign up for RepX and create your agent in Storylane.
+2. Copy your RepX script from your Storylane account.
+3. Go to Settings > RepX in WordPress, paste the script and click Save changes. RepX is now live on your site.
 
 The plugin adds the RepX script to every public page of your site.
 
@@ -38,7 +38,7 @@ The plugin adds the RepX script to every public page of your site.
 
 This plugin connects to a service provided by Storylane to show the RepX AI agent on your website.
 
-Once you turn on RepX and save your RepX script, the plugin loads this script on every front-end page of your site:
+Once you save your RepX script, the plugin loads this script on every front-end page of your site:
 
 `https://js.storylane.io/js/v1/repx.js`
 
@@ -55,8 +55,8 @@ This service is provided by Storylane: [Terms of Service](https://www.storylane.
 1. Upload the `storylane-repx` folder to `/wp-content/plugins/`, or install it from the Plugins screen in WordPress.
 2. Activate the plugin.
 3. Go to Settings > RepX.
-4. Tick "Show RepX on my site".
-5. Paste your RepX script and save.
+4. Paste your RepX script and click Save changes.
+5. To pause RepX later, click Turn off. Your script is kept.
 
 == Frequently Asked Questions ==
 

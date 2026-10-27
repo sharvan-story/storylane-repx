@@ -20,6 +20,9 @@ define( 'STORYLANE_REPX_VERSION', '1.0.0' );
 define( 'STORYLANE_REPX_OPTION', 'storylane_repx_settings' );
 define( 'STORYLANE_REPX_HANDLE', 'storylane-repx' );
 define( 'STORYLANE_REPX_SCRIPT_URL', 'https://js.storylane.io/js/v1/repx.js' );
+define( 'STORYLANE_REPX_ABOUT_URL', 'https://www.storylane.io/repx' );
+define( 'STORYLANE_REPX_SIGNUP_URL', 'https://app.storylane.io/signup' );
+define( 'STORYLANE_REPX_APP_URL', 'https://app.storylane.io/repx' );
 
 /**
  * Extract the RepX ID from the RepX script tag.
@@ -115,17 +118,35 @@ function storylane_repx_sanitize_settings( $input ) {
 			}
 			return $old;
 		}
-	} elseif ( isset( $input['id'] ) ) {
+		$action = isset( $input['action'] ) ? (string) $input['action'] : 'save';
+		if ( '' === $id || 'off' === $action ) {
+			$enabled = 0;
+		} elseif ( 'on' === $action || $id !== $old['id'] ) {
+			// Turning on, or saving a new script, makes RepX live.
+			$enabled = 1;
+		} else {
+			// Saving the same script keeps the current on or off state.
+			$enabled = $old['enabled'];
+		}
+		return array(
+			'id'      => $id,
+			'enabled' => $enabled,
+		);
+	}
+
+	if ( isset( $input['id'] ) ) {
 		// When the option is first created, WordPress runs this callback a second time on the
 		// already-sanitized array, which holds 'id' instead of 'script'.
 		$id = storylane_repx_validate_id( $input['id'] );
-	} else {
-		$id = '';
+		return array(
+			'id'      => $id,
+			'enabled' => ( '' !== $id && ! empty( $input['enabled'] ) ) ? 1 : 0,
+		);
 	}
 
 	return array(
-		'id'      => $id,
-		'enabled' => empty( $input['enabled'] ) ? 0 : 1,
+		'id'      => '',
+		'enabled' => 0,
 	);
 }
 
@@ -163,6 +184,33 @@ function storylane_repx_add_menu() {
 add_action( 'admin_menu', 'storylane_repx_add_menu' );
 
 /**
+ * Load the settings page styles, only on the RepX settings page.
+ *
+ * @param string $hook Current admin page hook.
+ */
+function storylane_repx_admin_assets( $hook ) {
+	if ( 'settings_page_storylane-repx' !== $hook ) {
+		return;
+	}
+	wp_enqueue_style(
+		'storylane-repx-admin',
+		plugins_url( 'assets/admin.css', __FILE__ ),
+		array(),
+		STORYLANE_REPX_VERSION
+	);
+}
+add_action( 'admin_enqueue_scripts', 'storylane_repx_admin_assets' );
+
+/**
+ * Small "opens in a new tab" icon.
+ *
+ * @return string SVG markup.
+ */
+function storylane_repx_external_icon() {
+	return '<svg class="slx-ext" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3H3.5A1.5 1.5 0 0 0 2 4.5v8A1.5 1.5 0 0 0 3.5 14h8a1.5 1.5 0 0 0 1.5-1.5V10M9 2h5v5M14 2 7.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+/**
  * Render the settings page.
  */
 function storylane_repx_render_page() {
@@ -171,27 +219,74 @@ function storylane_repx_render_page() {
 	}
 	$settings = storylane_repx_get_settings();
 	$name     = STORYLANE_REPX_OPTION;
+	$has_id   = '' !== $settings['id'];
+	$live     = $has_id && $settings['enabled'];
+	$new_tab  = '<span class="screen-reader-text">' . esc_html__( '(opens in a new tab)', 'storylane-repx' ) . '</span>';
 	?>
-	<div class="wrap">
-		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-		<form method="post" action="options.php">
+	<div class="wrap slx">
+		<header class="slx-header">
+			<h1 class="slx-title">
+				<img src="<?php echo esc_url( plugins_url( 'assets/repx-logo.svg', __FILE__ ) ); ?>" alt="" width="66" height="32" />
+				<span class="screen-reader-text"><?php esc_html_e( 'Storylane RepX', 'storylane-repx' ); ?></span>
+			</h1>
+			<p class="slx-lede">
+				<?php
+				printf(
+					/* translators: %s: link to the RepX product page. */
+					esc_html__( '%s is an AI sales agent from Storylane. It answers buyer questions, qualifies leads and books demos on your site.', 'storylane-repx' ),
+					'<a href="' . esc_url( STORYLANE_REPX_ABOUT_URL ) . '" target="_blank" rel="noopener noreferrer">RepX' . $new_tab . '</a>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts above.
+				);
+				?>
+			</p>
+		</header>
+		<hr class="wp-header-end" />
+
+		<form method="post" action="options.php" class="slx-form">
 			<?php settings_fields( 'storylane_repx' ); ?>
-			<table class="form-table" role="presentation">
-				<tr>
-					<th scope="row"><?php esc_html_e( 'Show RepX', 'storylane-repx' ); ?></th>
-					<td>
-						<label><input type="checkbox" id="storylane-repx-enabled" name="<?php echo esc_attr( $name ); ?>[enabled]" value="1" <?php checked( (int) $settings['enabled'], 1 ); ?> /> <?php esc_html_e( 'Show RepX on my site', 'storylane-repx' ); ?></label>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="storylane-repx-script"><?php esc_html_e( 'RepX script', 'storylane-repx' ); ?></label></th>
-					<td>
-						<textarea id="storylane-repx-script" name="<?php echo esc_attr( $name ); ?>[script]" rows="3" class="large-text code" placeholder="<?php echo esc_attr( storylane_repx_script_tag( 'yourrepxid' ) ); ?>"><?php echo esc_textarea( storylane_repx_script_tag( $settings['id'] ) ); ?></textarea>
-						<p class="description"><?php esc_html_e( 'Paste the RepX script from your Storylane account.', 'storylane-repx' ); ?></p>
-					</td>
-				</tr>
-			</table>
-			<?php submit_button(); ?>
+			<ol class="slx-steps">
+				<li class="slx-step">
+					<span class="slx-step-num" aria-hidden="true">01</span>
+					<div class="slx-step-body">
+						<h2 class="slx-step-title"><?php esc_html_e( 'Create your RepX agent', 'storylane-repx' ); ?></h2>
+						<p class="slx-step-text"><?php esc_html_e( 'Sign up for RepX and set up your agent in Storylane.', 'storylane-repx' ); ?></p>
+						<p class="slx-actions">
+							<a class="slx-btn slx-btn-outline" href="<?php echo esc_url( STORYLANE_REPX_SIGNUP_URL ); ?>" target="_blank" rel="noopener noreferrer">
+								<?php esc_html_e( 'Sign up for RepX', 'storylane-repx' ); ?>
+								<?php echo storylane_repx_external_icon() . $new_tab; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							</a>
+						</p>
+					</div>
+				</li>
+				<li class="slx-step">
+					<span class="slx-step-num" aria-hidden="true">02</span>
+					<div class="slx-step-body">
+						<h2 class="slx-step-title"><?php esc_html_e( 'Add RepX to your site', 'storylane-repx' ); ?></h2>
+						<p class="slx-step-text">
+							<?php esc_html_e( 'Copy your RepX script from Storylane and paste it below.', 'storylane-repx' ); ?>
+							<a class="slx-link" href="<?php echo esc_url( STORYLANE_REPX_APP_URL ); ?>" target="_blank" rel="noopener noreferrer">
+								<?php esc_html_e( 'Get your script', 'storylane-repx' ); ?>
+								<?php echo storylane_repx_external_icon() . $new_tab; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							</a>
+						</p>
+						<label class="slx-label" for="storylane-repx-script"><?php esc_html_e( 'RepX script', 'storylane-repx' ); ?></label>
+						<textarea id="storylane-repx-script" class="slx-input" name="<?php echo esc_attr( $name ); ?>[script]" rows="3" spellcheck="false" placeholder="<?php echo esc_attr( storylane_repx_script_tag( 'yourrepxid' ) ); ?>"><?php echo esc_textarea( storylane_repx_script_tag( $settings['id'] ) ); ?></textarea>
+						<div class="slx-status-row">
+							<?php if ( $live ) : ?>
+								<span class="slx-status is-live" id="storylane-repx-status"><span class="slx-dot" aria-hidden="true"></span><?php esc_html_e( 'RepX is live on this site', 'storylane-repx' ); ?></span>
+								<button type="submit" class="slx-btn slx-btn-outline" name="<?php echo esc_attr( $name ); ?>[action]" value="off"><?php esc_html_e( 'Turn off', 'storylane-repx' ); ?></button>
+							<?php elseif ( $has_id ) : ?>
+								<span class="slx-status is-off" id="storylane-repx-status"><span class="slx-dot" aria-hidden="true"></span><?php esc_html_e( 'RepX is off', 'storylane-repx' ); ?></span>
+								<button type="submit" class="slx-btn slx-btn-outline" name="<?php echo esc_attr( $name ); ?>[action]" value="on"><?php esc_html_e( 'Turn on', 'storylane-repx' ); ?></button>
+							<?php else : ?>
+								<span class="slx-status is-empty" id="storylane-repx-status"><span class="slx-dot" aria-hidden="true"></span><?php esc_html_e( 'Not set up yet', 'storylane-repx' ); ?></span>
+							<?php endif; ?>
+						</div>
+					</div>
+				</li>
+			</ol>
+			<p class="slx-footer">
+				<button type="submit" class="slx-btn slx-btn-primary" name="<?php echo esc_attr( $name ); ?>[action]" value="save" id="submit"><?php esc_html_e( 'Save changes', 'storylane-repx' ); ?></button>
+			</p>
 		</form>
 	</div>
 	<?php

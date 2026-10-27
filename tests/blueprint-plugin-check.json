@@ -1,0 +1,10 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "preferredVersions": { "php": "8.3", "wp": "latest" },
+  "steps": [
+    { "step": "defineWpConfigConsts", "consts": { "WP_DEBUG": true } },
+    { "step": "installPlugin", "pluginData": { "resource": "wordpress.org/plugins", "slug": "plugin-check" }, "options": { "activate": true } },
+    { "step": "activatePlugin", "pluginPath": "storylane-repx/storylane-repx.php" },
+    { "step": "runPHP", "code": "<?php require '/tests/plugin-check-run.php';" }
+  ]
+}

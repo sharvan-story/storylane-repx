@@ -1,0 +1,8 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "preferredVersions": { "php": "8.3", "wp": "latest" },
+  "steps": [
+    { "step": "defineWpConfigConsts", "consts": { "WP_DEBUG": true, "WP_DEBUG_DISPLAY": true, "FS_METHOD": "direct" } },
+    { "step": "runPHP", "code": "<?php require '/tests/uninstall-run.php';" }
+  ]
+}

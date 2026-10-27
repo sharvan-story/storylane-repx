@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Storylane RepX
- * Description:       Adds the Storylane RepX AI sales agent to your website with one embed ID.
+ * Description:       Adds the Storylane RepX AI sales agent to your website.
  * Version:           1.0.0
  * Requires at least: 6.3
  * Requires PHP:      7.4
@@ -22,39 +22,68 @@ define( 'STORYLANE_REPX_HANDLE', 'storylane-repx' );
 define( 'STORYLANE_REPX_SCRIPT_URL', 'https://js.storylane.io/js/v1/repx.js' );
 
 /**
- * Extract a RepX ID from a full embed snippet or a bare ID.
+ * Extract the RepX ID from the RepX script tag.
+ *
+ * Only the full script is accepted: it must load js.storylane.io/js/v1/repx.js and carry a data-id.
  *
  * @param string $input Raw user input.
- * @return string Valid lowercase ID, or an empty string if none is valid.
+ * @return string Valid lowercase ID, or an empty string if the input is not a RepX script.
  */
 function storylane_repx_extract_id( $input ) {
 	$input = trim( (string) $input );
-	if ( preg_match( '/data-id\s*=\s*(["\'])(.*?)\1/i', $input, $matches ) ) {
-		$candidate = $matches[2];
-	} else {
-		$candidate = $input;
+	if ( false === stripos( $input, 'js.storylane.io/js/v1/repx.js' ) ) {
+		return '';
 	}
-	$candidate = strtolower( trim( $candidate ) );
-	return preg_match( '/^[a-z0-9]{6,64}$/', $candidate ) ? $candidate : '';
+	if ( ! preg_match( '/data-id\s*=\s*(["\'])(.*?)\1/i', $input, $matches ) ) {
+		return '';
+	}
+	return storylane_repx_validate_id( $matches[2] );
+}
+
+/**
+ * Validate a stored RepX ID.
+ *
+ * @param string $id Candidate ID.
+ * @return string Valid lowercase ID, or an empty string.
+ */
+function storylane_repx_validate_id( $id ) {
+	$id = strtolower( trim( (string) $id ) );
+	return preg_match( '/^[a-z0-9]{6,64}$/', $id ) ? $id : '';
+}
+
+/**
+ * The RepX script tag for a saved ID, shown back in the settings box.
+ *
+ * @param string $id RepX ID.
+ * @return string Script tag, or an empty string when there is no ID.
+ */
+function storylane_repx_script_tag( $id ) {
+	if ( '' === $id ) {
+		return '';
+	}
+	return '<script src="' . STORYLANE_REPX_SCRIPT_URL . '" data-id="' . $id . '" async></script>';
 }
 
 /**
  * Get saved settings merged with defaults.
  *
- * @return array{id:string,location:string,enabled:int}
+ * @return array{id:string,enabled:int}
  */
 function storylane_repx_get_settings() {
 	$saved = get_option( STORYLANE_REPX_OPTION, array() );
 	if ( ! is_array( $saved ) ) {
 		$saved = array();
 	}
-	return wp_parse_args(
+	$settings = wp_parse_args(
 		$saved,
 		array(
-			'id'       => '',
-			'location' => 'footer',
-			'enabled'  => 0,
+			'id'      => '',
+			'enabled' => 0,
 		)
+	);
+	return array(
+		'id'      => storylane_repx_validate_id( $settings['id'] ),
+		'enabled' => empty( $settings['enabled'] ) ? 0 : 1,
 	);
 }
 
@@ -69,40 +98,34 @@ function storylane_repx_sanitize_settings( $input ) {
 
 	$old   = storylane_repx_get_settings();
 	$input = is_array( $input ) ? $input : array();
-	// Raw input is only used to find an ID; what gets stored is validated against ^[a-z0-9]{6,64}$.
-	// The form sends 'embed'. When the option is first created, WordPress runs this callback a
-	// second time on the already-sanitized array, which has 'id' instead, so accept that too.
-	if ( isset( $input['embed'] ) ) {
-		$raw = trim( (string) $input['embed'] );
-	} elseif ( isset( $input['id'] ) ) {
-		$raw = trim( (string) $input['id'] );
-	} else {
-		$raw = '';
-	}
 
-	$id = '';
-	if ( '' !== trim( $raw ) ) {
-		$id = storylane_repx_extract_id( $raw );
-		if ( '' === $id ) {
+	if ( isset( $input['script'] ) ) {
+		// From the form: only the RepX script is accepted. Only the ID inside it is stored.
+		$raw = trim( (string) $input['script'] );
+		$id  = '' === $raw ? '' : storylane_repx_extract_id( $raw );
+		if ( '' !== $raw && '' === $id ) {
 			if ( ! $error_added ) {
 				add_settings_error(
 					'storylane_repx_messages',
-					'storylane_repx_invalid_id',
-					esc_html__( 'No valid RepX ID found. Paste the full embed code or just the ID (6 to 64 letters and numbers). Your previous settings were kept.', 'storylane-repx' ),
+					'storylane_repx_invalid_script',
+					esc_html__( 'That is not a RepX script. Paste the full script from your Storylane account. Your previous settings were kept.', 'storylane-repx' ),
 					'error'
 				);
 				$error_added = true;
 			}
 			return $old;
 		}
+	} elseif ( isset( $input['id'] ) ) {
+		// When the option is first created, WordPress runs this callback a second time on the
+		// already-sanitized array, which holds 'id' instead of 'script'.
+		$id = storylane_repx_validate_id( $input['id'] );
+	} else {
+		$id = '';
 	}
 
-	$location = ( isset( $input['location'] ) && 'header' === $input['location'] ) ? 'header' : 'footer';
-
 	return array(
-		'id'       => $id,
-		'location' => $location,
-		'enabled'  => empty( $input['enabled'] ) ? 0 : 1,
+		'id'      => $id,
+		'enabled' => empty( $input['enabled'] ) ? 0 : 1,
 	);
 }
 
@@ -117,9 +140,8 @@ function storylane_repx_register_settings() {
 			'type'              => 'array',
 			'sanitize_callback' => 'storylane_repx_sanitize_settings',
 			'default'           => array(
-				'id'       => '',
-				'location' => 'footer',
-				'enabled'  => 0,
+				'id'      => '',
+				'enabled' => 0,
 			),
 		)
 	);
@@ -152,32 +174,20 @@ function storylane_repx_render_page() {
 	?>
 	<div class="wrap">
 		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-		<p>
-			<?php esc_html_e( 'Where to find your embed code: open your RepX settings in Storylane, go to the install or embed section, and copy the script tag. You can paste the whole tag or only the ID from data-id.', 'storylane-repx' ); ?>
-		</p>
 		<form method="post" action="options.php">
 			<?php settings_fields( 'storylane_repx' ); ?>
 			<table class="form-table" role="presentation">
 				<tr>
-					<th scope="row"><label for="storylane-repx-embed"><?php esc_html_e( 'RepX embed code or ID', 'storylane-repx' ); ?></label></th>
+					<th scope="row"><?php esc_html_e( 'Show RepX', 'storylane-repx' ); ?></th>
 					<td>
-						<textarea id="storylane-repx-embed" name="<?php echo esc_attr( $name ); ?>[embed]" rows="3" class="large-text code" placeholder="<?php echo esc_attr( 'mbtx79fn0yum' ); ?>"><?php echo esc_textarea( $settings['id'] ); ?></textarea>
-						<p class="description"><?php esc_html_e( 'Only the ID is saved.', 'storylane-repx' ); ?></p>
+						<label><input type="checkbox" id="storylane-repx-enabled" name="<?php echo esc_attr( $name ); ?>[enabled]" value="1" <?php checked( (int) $settings['enabled'], 1 ); ?> /> <?php esc_html_e( 'Show RepX on my site', 'storylane-repx' ); ?></label>
 					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php esc_html_e( 'Location', 'storylane-repx' ); ?></th>
+					<th scope="row"><label for="storylane-repx-script"><?php esc_html_e( 'RepX script', 'storylane-repx' ); ?></label></th>
 					<td>
-						<fieldset>
-							<label><input type="radio" name="<?php echo esc_attr( $name ); ?>[location]" value="footer" <?php checked( $settings['location'], 'footer' ); ?> /> <?php esc_html_e( 'Footer (recommended)', 'storylane-repx' ); ?></label><br />
-							<label><input type="radio" name="<?php echo esc_attr( $name ); ?>[location]" value="header" <?php checked( $settings['location'], 'header' ); ?> /> <?php esc_html_e( 'Header', 'storylane-repx' ); ?></label>
-						</fieldset>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><?php esc_html_e( 'Enable RepX', 'storylane-repx' ); ?></th>
-					<td>
-						<label><input type="checkbox" name="<?php echo esc_attr( $name ); ?>[enabled]" value="1" <?php checked( (int) $settings['enabled'], 1 ); ?> /> <?php esc_html_e( 'Show RepX on my site', 'storylane-repx' ); ?></label>
+						<textarea id="storylane-repx-script" name="<?php echo esc_attr( $name ); ?>[script]" rows="3" class="large-text code" placeholder="<?php echo esc_attr( storylane_repx_script_tag( 'yourrepxid' ) ); ?>"><?php echo esc_textarea( storylane_repx_script_tag( $settings['id'] ) ); ?></textarea>
+						<p class="description"><?php esc_html_e( 'Paste the RepX script from your Storylane account.', 'storylane-repx' ); ?></p>
 					</td>
 				</tr>
 			</table>
@@ -208,7 +218,7 @@ function storylane_repx_enqueue() {
 		return;
 	}
 	$settings = storylane_repx_get_settings();
-	if ( empty( $settings['enabled'] ) || '' === storylane_repx_extract_id( $settings['id'] ) ) {
+	if ( empty( $settings['enabled'] ) || '' === $settings['id'] ) {
 		return;
 	}
 	wp_enqueue_script(
@@ -217,7 +227,7 @@ function storylane_repx_enqueue() {
 		array(),
 		null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- URL must stay exactly as given.
 		array(
-			'in_footer' => 'header' !== $settings['location'],
+			'in_footer' => true,
 			'strategy'  => 'async',
 		)
 	);
@@ -233,7 +243,7 @@ add_action( 'wp_enqueue_scripts', 'storylane_repx_enqueue' );
 function storylane_repx_script_attributes( $attributes ) {
 	if ( isset( $attributes['id'] ) && STORYLANE_REPX_HANDLE . '-js' === $attributes['id'] ) {
 		$settings                 = storylane_repx_get_settings();
-		$attributes['data-id']     = storylane_repx_extract_id( $settings['id'] );
+		$attributes['data-id']     = $settings['id'];
 		$attributes['data-source'] = 'wordpress';
 	}
 	return $attributes;

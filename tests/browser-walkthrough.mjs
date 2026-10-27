@@ -26,24 +26,23 @@ await page.goto(`${BASE}/wp-admin/options-general.php?page=storylane-repx`, { wa
 // Playground auto-login may redirect first; land on the settings page.
 if (!page.url().includes("page=storylane-repx")) await page.goto(`${BASE}/wp-admin/options-general.php?page=storylane-repx`);
 log("STEP3 page title:", await page.locator("h1").first().innerText());
-await page.fill("#storylane-repx-embed", SNIPPET);
-await page.check('input[name="storylane_repx_settings[location]"][value="footer"]');
-await page.check('input[name="storylane_repx_settings[enabled]"]');
+await page.check("#storylane-repx-enabled");
+await page.fill("#storylane-repx-script", SNIPPET);
 await page.click("#submit");
 await page.waitForLoadState("domcontentloaded");
 const notice = await page.locator(".notice, .updated, .error").allInnerTexts();
 log("STEP3 notices:", JSON.stringify(notice));
-const v3 = await page.inputValue("#storylane-repx-embed");
-expect(v3 === "mbtx79fn0yum", `first save keeps only the ID (got "${v3}")`);
+const v3 = await page.inputValue("#storylane-repx-script");
+expect(v3 === SNIPPET, `first save shows the RepX script back (got "${v3}")`);
 await page.screenshot({ path: OUT + "1-settings-saved.png", fullPage: true });
 
 // Step 4: bad value is refused, old value kept.
-await page.fill("#storylane-repx-embed", "hello world");
+await page.fill("#storylane-repx-script", "hello world");
 await page.click("#submit");
 await page.waitForLoadState("domcontentloaded");
 log("STEP4 notices:", JSON.stringify(await page.locator(".notice, .updated, .error").allInnerTexts()));
-const v4 = await page.inputValue("#storylane-repx-embed");
-expect(v4 === "mbtx79fn0yum", `bad value refused, old ID kept (got "${v4}")`);
+const v4 = await page.inputValue("#storylane-repx-script");
+expect(v4 === SNIPPET, `bad value refused, old script kept (got "${v4}")`);
 await page.screenshot({ path: OUT + "2-bad-value.png", fullPage: true });
 
 // Step 5: the site itself.

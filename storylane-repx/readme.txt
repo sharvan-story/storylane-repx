@@ -18,7 +18,7 @@ RepX works as your AI SDR and your AI BDR. It answers buyer questions, qualifies
 
 Qualified leads and conversation summaries flow to HubSpot, Salesforce and Slack. Your team sees who is interested and what they asked.
 
-This plugin installs RepX on your WordPress site. You paste your embed code or ID once. The plugin does the rest.
+This plugin installs RepX on your WordPress site. You paste your RepX script once. The plugin does the rest.
 
 = Who it is for =
 
@@ -28,17 +28,17 @@ This plugin installs RepX on your WordPress site. You paste your embed code or I
 
 = Setup in 3 steps =
 
-1. Copy your RepX embed code from your Storylane account.
-2. Go to Settings > RepX in WordPress and paste the code or the ID.
-3. Tick "Show RepX on my site" and save.
+1. Copy your RepX script from your Storylane account.
+2. Go to Settings > RepX in WordPress and tick "Show RepX on my site".
+3. Paste the script and save.
 
-The plugin saves only the ID. It adds the RepX script to every public page of your site. You can place it in the footer (default) or the header.
+The plugin adds the RepX script to every public page of your site.
 
 == External services ==
 
 This plugin connects to a service provided by Storylane to show the RepX AI agent on your website.
 
-Once you enable the plugin and save a RepX ID, it loads this script on every front-end page of your site:
+Once you turn on RepX and save your RepX script, the plugin loads this script on every front-end page of your site:
 
 `https://js.storylane.io/js/v1/repx.js`
 
@@ -55,30 +55,26 @@ This service is provided by Storylane: [Terms of Service](https://www.storylane.
 1. Upload the `storylane-repx` folder to `/wp-content/plugins/`, or install it from the Plugins screen in WordPress.
 2. Activate the plugin.
 3. Go to Settings > RepX.
-4. Paste your RepX embed code or ID.
-5. Choose footer or header, tick "Show RepX on my site", and save.
+4. Tick "Show RepX on my site".
+5. Paste your RepX script and save.
 
 == Frequently Asked Questions ==
 
-= Where do I find my embed code? =
+= Where do I find my RepX script? =
 
-Sign in to Storylane, open your RepX settings and find the install or embed section. Copy the script tag. It looks like this: `<script src="https://js.storylane.io/js/v1/repx.js" data-id="your-id" async></script>`. You can paste the whole tag, or just the value of `data-id`.
-
-= Should I use the header or the footer? =
-
-Use the footer. It is the default and works for most sites. Choose the header only if you want RepX to start loading earlier.
+Sign in to Storylane and open your RepX settings. Copy the RepX script. It looks like this: `<script src="https://js.storylane.io/js/v1/repx.js" data-id="your-id" async></script>`.
 
 = Does it slow down my site? =
 
 The RepX script loads asynchronously. That means it does not block your page from showing.
 
-= Does the plugin store my embed code? =
+= Where does the plugin keep my settings? =
 
-It stores only the ID, in a single WordPress option. Uninstalling the plugin removes it.
+In a single WordPress option. Uninstalling the plugin removes it.
 
 == Screenshots ==
 
-1. The Settings > RepX page where you paste your embed code or ID.
+1. The Settings > RepX page where you paste your RepX script.
 2. RepX answering a visitor's question on a website.
 
 == Changelog ==

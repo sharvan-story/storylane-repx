@@ -50,6 +50,10 @@ The plugin does not load the script in the WordPress admin, and it makes no call
 
 This service is provided by Storylane: [Terms of Service](https://www.storylane.io/terms-of-service) and [Privacy Policy](https://www.storylane.io/privacy-policy).
 
+== Credits ==
+
+The settings page uses the Inter typeface by The Inter Project Authors, licensed under the SIL Open Font License 1.1. The licence is included in `assets/OFL.txt`.
+
 == Installation ==
 
 1. Upload the `storylane-repx` folder to `/wp-content/plugins/`, or install it from the Plugins screen in WordPress.

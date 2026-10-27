@@ -1,5 +1,11 @@
 # Storylane RepX for WordPress (dev notes)
 
+## Try it in your browser
+
+[Open the Storylane RepX preview](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/sharvan-story/storylane-repx/main/playground/blueprint.json)
+
+This opens a temporary WordPress in your browser with the plugin installed and RepX switched on. Nothing is installed on your computer, and the site disappears when you close the tab. You land on Settings > RepX. Click the site name at the top left to see RepX on the site.
+
 Plugin source: `storylane-repx/`. No build step, no dependencies.
 
 ## Develop

@@ -70,7 +70,15 @@ function storylane_repx_sanitize_settings( $input ) {
 	$old   = storylane_repx_get_settings();
 	$input = is_array( $input ) ? $input : array();
 	// Raw input is only used to find an ID; what gets stored is validated against ^[a-z0-9]{6,64}$.
-	$raw   = isset( $input['embed'] ) ? trim( (string) $input['embed'] ) : '';
+	// The form sends 'embed'. When the option is first created, WordPress runs this callback a
+	// second time on the already-sanitized array, which has 'id' instead, so accept that too.
+	if ( isset( $input['embed'] ) ) {
+		$raw = trim( (string) $input['embed'] );
+	} elseif ( isset( $input['id'] ) ) {
+		$raw = trim( (string) $input['id'] );
+	} else {
+		$raw = '';
+	}
 
 	$id = '';
 	if ( '' !== trim( $raw ) ) {

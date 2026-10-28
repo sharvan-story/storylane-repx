@@ -15,7 +15,7 @@ curl -s -o /dev/null "$BASE/"
 curl -s -c "$J" -b "$J" -o /dev/null "$BASE/wp-login.php"
 curl -s -c "$J" -b "$J" -o /dev/null -d "log=admin&pwd=password&wp-submit=Log+In&redirect_to=$BASE/wp-admin/&testcookie=1" "$BASE/wp-login.php"
 
-# save <script> [on]  -> submits the form; "on" ticks the RepX switch. Prints the page after redirect.
+# save <script> [save|on|off]  -> submits the form with that button (default Save changes). Prints the page after redirect.
 save(){
   local page nonce
   page="$(curl -s -b "$J" -c "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx")"
@@ -23,7 +23,7 @@ save(){
   local args=(--data-urlencode "option_page=storylane_repx" --data-urlencode "action=update" --data-urlencode "_wpnonce=$nonce"
     --data-urlencode "_wp_http_referer=/wp-admin/options-general.php?page=storylane-repx"
     --data-urlencode "storylane_repx_settings[script]=$1")
-  [ "${2:-}" = "on" ] && args+=(--data-urlencode "storylane_repx_settings[enabled]=1")
+  args+=(--data-urlencode "storylane_repx_settings[action]=${2:-save}")
   curl -s -L -b "$J" -c "$J" "${args[@]}" "$BASE/wp-admin/options.php"
 }
 tag(){ echo "<script src=\"https://js.storylane.io/js/v1/repx.js\" data-id=\"$1\" async></script>"; }
@@ -64,20 +64,24 @@ pos=$(echo "$h" | grep -n 'repx.js' | head -1 | cut -d: -f1); hend=$(echo "$h" |
 curl -s -b "$ANON" "$BASE/?feed=rss2" | grep -q repx.js && no "script in feed" || ok "not in feed"
 curl -s -b "$ANON" "$BASE/wp-json/" | grep -q repx.js && no "script in REST" || ok "not in REST"
 curl -s -b "$J" "$BASE/wp-admin/index.php" | grep -q repx.js && no "script in admin" || ok "not in admin"
-sw(){ curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx" | grep -o '<input[^>]*id="storylane-repx-enabled"[^>]*>'; }
+save "$(tag mbtx79fn0yum)" off >/dev/null; h="$(front)"
+echo "$h" | grep -q repx.js && no "printed after Turn off RepX" || ok "Turn off RepX takes it off the site"
+f="$(field)"; [[ "$f" == *mbtx79fn0yum* ]] && ok "script kept when turned off" || no "script lost when turned off"
+pg="$(curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx")"
+echo "$pg" | grep -q "RepX is off" && echo "$pg" | grep -q "value=\"on\">Turn on" && ok "status says off with a Turn on link" || no "off state"
 save "$(tag mbtx79fn0yum)" >/dev/null; h="$(front)"
-echo "$h" | grep -q repx.js && no "printed while switched off" || ok "nothing when switched off"
-f="$(field)"; [[ "$f" == *mbtx79fn0yum* ]] && ok "script kept when switched off" || no "script lost when switched off"
-sw | grep -q "checked" && no "switch still on" || ok "switch shows off"
+echo "$h" | grep -q repx.js && no "Save changes turned it back on" || ok "Save changes keeps it off"
 save "$(tag mbtx79fn0yum)" on >/dev/null; h="$(front)"
-echo "$h" | grep -q repx.js && ok "switching on brings it back" || no "switch on"
-sw | grep -q "checked" && ok "switch shows on" || no "switch on state"
+echo "$h" | grep -q repx.js && ok "Turn on RepX brings it back" || no "turn on"
+pg="$(curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx")"
+echo "$pg" | grep -q "RepX is live on this site" && echo "$pg" | grep -q "value=\"off\">Turn off" && ok "status says live with a Turn off link" || no "live state"
+echo "$pg" | grep -q 'role="switch"' && no "switch still present" || ok "no switch on the page"
 save "" >/dev/null; h="$(front)"
 echo "$h" | grep -q repx.js && no "printed with empty script" || ok "clearing the script removes RepX"
 curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx" | grep -q "RepX is not set up yet" && ok "status shows not set up" || no "status empty"
-sw | grep -q "disabled" && ok "switch disabled until a script is saved" || no "switch not disabled"
+curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx" | grep -qE '\[action\]" value="(on|off)"' && no "turn on/off shown before setup" || ok "no Turn on/off before a script is saved"
 save "$(tag mbtx79fn0yum)" >/dev/null; h="$(front)"
-echo "$h" | grep -q repx.js && ok "first setup turns RepX on without the switch" || no "first setup auto-on"
+echo "$h" | grep -q repx.js && ok "first setup turns RepX on" || no "first setup auto-on"
 curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx" | grep -q "storylane-repx/assets/admin.css" && ok "page styles load on the RepX page" || no "admin.css not enqueued"
 curl -s -b "$J" "$BASE/wp-admin/index.php" | grep -q "storylane-repx/assets/admin.css" && no "styles leak onto other admin pages" || ok "styles only on the RepX page"
 

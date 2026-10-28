@@ -192,7 +192,7 @@
 	outline: none;
 }
 
-/* Action bar: the switch and Save live together at the bottom of the card. */
+/* Action bar: RepX status, Turn off / Turn on and Save together at the bottom of the card. */
 .slx-actionbar {
 	display: flex;
 	flex-wrap: wrap;
@@ -205,78 +205,80 @@
 	border-radius: 0 0 4px 4px;
 }
 
-.slx-switch-row {
+
+/* Status beside the Turn off / Turn on button */
+.slx-status-row {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
-	gap: 16px;
+	gap: 8px;
 	min-width: 0;
 }
 
-/* Switch: a real checkbox, visually replaced by the label's track and knob. */
-.slx .slx-switch-input {
-	position: absolute;
-	width: 1px;
-	height: 1px;
+.slx-sep {
+	color: var(--slx-type-tertiary);
+}
+
+/* Quiet text action next to the status: lower weight than any button. */
+.slx .slx-link-btn {
 	margin: 0;
-	opacity: 0;
-}
-
-.slx-switch {
-	position: relative;
-	flex: none;
-	width: 48px;
-	height: 32px;
-	border-radius: 16px;
-	background: var(--slx-type-tertiary);
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--slx-garnet-light);
+	font: inherit;
+	font-size: 14px;
+	line-height: 24px;
+	font-weight: 500;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 3px;
 	cursor: pointer;
-	transition: background-color 150ms ease;
 }
 
-.slx-switch::after {
-	content: "";
-	position: absolute;
-	top: 4px;
-	left: 4px;
-	width: 24px;
-	height: 24px;
-	border-radius: 12px;
-	background: var(--slx-white);
-	box-shadow: 0 1px 2px rgba(19, 1, 12, 0.24);
-	transition: transform 200ms var(--slx-ease-out);
+@media (hover: hover) and (pointer: fine) {
+	.slx .slx-link-btn:hover {
+		color: var(--slx-garnet);
+	}
 }
 
-.slx-switch-input:checked + .slx-switch {
-	background: var(--slx-green);
-}
-
-.slx-switch-input:checked + .slx-switch::after {
-	transform: translateX(16px);
-}
-
-.slx-switch-input:focus-visible + .slx-switch {
+.slx .slx-link-btn:focus-visible {
 	outline: 2px solid var(--slx-garnet-light);
 	outline-offset: 2px;
+	border-radius: 2px;
 }
 
-.slx-switch-input:disabled + .slx-switch {
-	cursor: not-allowed;
-	opacity: 0.5;
-}
-
-.slx-switch-text {
+.slx-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
 	font-size: 16px;
 	line-height: 24px;
 	font-weight: 500;
 	color: var(--slx-type-dark);
 }
 
-.slx-switch-input:not(:checked) ~ .slx-switch-text .slx-when-on,
-.slx-switch-input:checked ~ .slx-switch-text .slx-when-off {
-	display: none;
+.slx-dot {
+	flex: none;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--slx-type-tertiary);
+	box-shadow: 0 0 0 4px var(--slx-light-yellow);
 }
 
-.slx-switch-input:disabled ~ .slx-switch-text {
+.slx-status.is-live .slx-dot {
+	background: var(--slx-green);
+	box-shadow: 0 0 0 4px var(--slx-pale-blue);
+}
+
+.slx-status.is-empty {
 	color: var(--slx-type-secondary);
+}
+
+.slx-status.is-empty .slx-dot {
+	background: transparent;
+	box-shadow: inset 0 0 0 1.5px var(--slx-type-tertiary);
 }
 
 /* Buttons */
@@ -356,7 +358,5 @@
 		transform: none;
 	}
 
-	.slx-switch::after {
-		transition: none;
-	}
+
 }

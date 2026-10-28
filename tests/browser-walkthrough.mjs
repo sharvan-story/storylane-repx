@@ -45,17 +45,15 @@ const v4 = await page.inputValue("#storylane-repx-script");
 expect(v4 === SNIPPET, `bad value refused, old script kept (got "${v4}")`);
 await page.screenshot({ path: OUT + "2-bad-value.png", fullPage: true });
 
-// Switch: flipping it changes the status text before saving; saving takes RepX off the site.
-await page.click('label[for="storylane-repx-enabled"]');
-const offText = (await page.locator("#storylane-repx-status").innerText()).trim();
-expect(offText === "RepX is off", `switch flips the status text (got "${offText}")`);
-await page.click("#submit");
+// Turn off RepX: one click takes it off the site and the status says so.
+await page.click('button[value="off"]');
 await page.waitForLoadState("domcontentloaded");
+const offText = (await page.locator("#storylane-repx-status").innerText()).trim();
+expect(offText === "RepX is off", `Turn off RepX updates the status (got "${offText}")`);
 const offHtml = await (await fetch(`${BASE}/?nocache=${Date.now()}`, { headers: { cookie: "playground_auto_login_already_happened=1" } })).text();
-expect(!offHtml.includes("repx.js"), "after switching off and saving, RepX is not on the site");
+expect(!offHtml.includes("repx.js"), "after Turn off RepX, RepX is not on the site");
 await page.screenshot({ path: OUT + "2b-switched-off.png", fullPage: true });
-await page.click('label[for="storylane-repx-enabled"]');
-await page.click("#submit");
+await page.click('button[value="on"]');
 await page.waitForLoadState("domcontentloaded");
 
 // Step 5: the site itself.

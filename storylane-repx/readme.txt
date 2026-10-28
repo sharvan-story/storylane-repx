@@ -79,7 +79,7 @@ In a single WordPress option. Uninstalling the plugin removes it.
 == Screenshots ==
 
 1. The Settings > RepX page where you paste your RepX script.
-2. RepX answering a visitor's question on a website.
+2. The RepX agent on a website, ready for visitors' questions.
 
 == Changelog ==
 

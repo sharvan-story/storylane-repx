@@ -73,7 +73,7 @@ echo "$h" | grep -q repx.js && ok "turn on brings it back" || no "turn on"
 curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx" | grep -q "RepX is live on this site" && ok "status shows live" || no "status live"
 save "" >/dev/null; h="$(front)"
 echo "$h" | grep -q repx.js && no "printed with empty script" || ok "clearing the script removes RepX"
-curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx" | grep -q "Not set up yet" && ok "status shows not set up" || no "status empty"
+curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx" | grep -q "RepX is not set up yet" && ok "status shows not set up" || no "status empty"
 curl -s -b "$J" "$BASE/wp-admin/options-general.php?page=storylane-repx" | grep -q "storylane-repx/assets/admin.css" && ok "page styles load on the RepX page" || no "admin.css not enqueued"
 curl -s -b "$J" "$BASE/wp-admin/index.php" | grep -q "storylane-repx/assets/admin.css" && no "styles leak onto other admin pages" || ok "styles only on the RepX page"
 

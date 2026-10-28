@@ -186,26 +186,51 @@
 	outline: none;
 }
 
-/* Status bar: sits above the steps, not part of them. */
+/* Status: a plain line above the steps, deliberately not a card. */
 .slx-statusbar {
+	min-height: 32px;
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	justify-content: space-between;
-	gap: 16px;
-	margin-bottom: 24px;
-	padding: 16px 16px 16px 24px;
-	background: var(--slx-white);
-	border: 1px solid var(--slx-light-yellow);
-	border-radius: 4px;
+	gap: 8px 24px;
+	margin-bottom: 32px;
 }
 
 .slx-statusbar-text {
 	display: flex;
 	flex-wrap: wrap;
-	align-items: center;
-	gap: 8px 16px;
+	align-items: baseline;
+	gap: 0 16px;
 	min-width: 0;
+}
+
+.slx-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
+	color: var(--slx-type-dark);
+	font-size: 16px;
+	line-height: 24px;
+	font-weight: 500;
+}
+
+.slx-dot {
+	flex: none;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--slx-type-tertiary);
+	box-shadow: 0 0 0 4px var(--slx-off-white);
+}
+
+.slx-status.is-live .slx-dot {
+	background: var(--slx-green);
+	box-shadow: 0 0 0 4px var(--slx-pale-blue);
+}
+
+.slx-status.is-empty .slx-dot {
+	background: transparent;
+	box-shadow: inset 0 0 0 1.5px var(--slx-type-tertiary);
 }
 
 .slx-statusbar-note {
@@ -214,40 +239,40 @@
 	line-height: 24px;
 }
 
-.slx-status {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
+/* Quiet text button for Turn off / Turn on. */
+.slx .slx-btn-text {
 	height: 32px;
-	padding: 0 16px;
-	border-radius: 16px;
+	margin: 0;
+	padding: 0 8px;
+	color: var(--slx-garnet-light);
+	background: transparent;
+	border: 0;
+	border-radius: 4px;
+	font: inherit;
 	font-size: 14px;
 	line-height: 24px;
 	font-weight: 500;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 3px;
+	cursor: pointer;
+	transition: transform 160ms var(--slx-ease-out), background-color 150ms ease;
 }
 
-.slx-dot {
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: currentColor;
+.slx .slx-btn-text:active {
+	transform: scale(0.97);
 }
 
-.slx-status.is-live {
-	color: var(--slx-green);
-	background: var(--slx-pale-blue);
+.slx .slx-btn-text:focus-visible {
+	outline: 2px solid var(--slx-garnet-light);
+	outline-offset: 2px;
 }
 
-.slx-status.is-off,
-.slx-status.is-empty {
-	color: var(--slx-type-secondary);
-	background: var(--slx-off-white);
-	box-shadow: inset 0 0 0 1px var(--slx-light-yellow);
-}
-
-.slx-status.is-empty .slx-dot {
-	background: transparent;
-	box-shadow: inset 0 0 0 1.5px currentColor;
+@media (hover: hover) and (pointer: fine) {
+	.slx .slx-btn-text:hover {
+		background: var(--slx-pale-pink, #feecf7);
+		color: var(--slx-garnet);
+	}
 }
 
 /* Buttons */
@@ -323,7 +348,8 @@
 		transition: background-color 150ms ease, border-color 150ms ease;
 	}
 
-	.slx .slx-btn:active {
+	.slx .slx-btn:active,
+	.slx .slx-btn-text:active {
 		transform: none;
 	}
 }

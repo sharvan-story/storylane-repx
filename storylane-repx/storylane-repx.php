@@ -247,19 +247,17 @@ function storylane_repx_render_page() {
 				<div class="slx-statusbar-text">
 					<?php if ( $live ) : ?>
 						<span class="slx-status is-live" id="storylane-repx-status"><span class="slx-dot" aria-hidden="true"></span><?php esc_html_e( 'RepX is live on this site', 'storylane-repx' ); ?></span>
-						<span class="slx-statusbar-note"><?php esc_html_e( 'Visitors see RepX on every page.', 'storylane-repx' ); ?></span>
 					<?php elseif ( $has_id ) : ?>
 						<span class="slx-status is-off" id="storylane-repx-status"><span class="slx-dot" aria-hidden="true"></span><?php esc_html_e( 'RepX is off', 'storylane-repx' ); ?></span>
 						<span class="slx-statusbar-note"><?php esc_html_e( 'Your script is saved. Visitors do not see RepX.', 'storylane-repx' ); ?></span>
 					<?php else : ?>
-						<span class="slx-status is-empty" id="storylane-repx-status"><span class="slx-dot" aria-hidden="true"></span><?php esc_html_e( 'Not set up yet', 'storylane-repx' ); ?></span>
-						<span class="slx-statusbar-note"><?php esc_html_e( 'Follow the two steps below.', 'storylane-repx' ); ?></span>
+						<span class="slx-status is-empty" id="storylane-repx-status"><span class="slx-dot" aria-hidden="true"></span><?php esc_html_e( 'RepX is not set up yet', 'storylane-repx' ); ?></span>
 					<?php endif; ?>
 				</div>
 				<?php if ( $live ) : ?>
-					<button type="submit" class="slx-btn slx-btn-outline" name="<?php echo esc_attr( $name ); ?>[action]" value="off"><?php esc_html_e( 'Turn off', 'storylane-repx' ); ?></button>
+					<button type="submit" class="slx-btn-text" name="<?php echo esc_attr( $name ); ?>[action]" value="off"><?php esc_html_e( 'Turn off', 'storylane-repx' ); ?></button>
 				<?php elseif ( $has_id ) : ?>
-					<button type="submit" class="slx-btn slx-btn-outline" name="<?php echo esc_attr( $name ); ?>[action]" value="on"><?php esc_html_e( 'Turn on', 'storylane-repx' ); ?></button>
+					<button type="submit" class="slx-btn-text" name="<?php echo esc_attr( $name ); ?>[action]" value="on"><?php esc_html_e( 'Turn on', 'storylane-repx' ); ?></button>
 				<?php endif; ?>
 			</section>
 			<ol class="slx-steps">

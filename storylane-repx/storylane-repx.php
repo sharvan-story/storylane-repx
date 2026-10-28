@@ -243,6 +243,25 @@ function storylane_repx_render_page() {
 
 		<form method="post" action="options.php" class="slx-form">
 			<?php settings_fields( 'storylane_repx' ); ?>
+			<section class="slx-statusbar<?php echo $live ? ' is-live' : ''; ?>" aria-labelledby="storylane-repx-status">
+				<div class="slx-statusbar-text">
+					<?php if ( $live ) : ?>
+						<span class="slx-status is-live" id="storylane-repx-status"><span class="slx-dot" aria-hidden="true"></span><?php esc_html_e( 'RepX is live on this site', 'storylane-repx' ); ?></span>
+						<span class="slx-statusbar-note"><?php esc_html_e( 'Visitors see RepX on every page.', 'storylane-repx' ); ?></span>
+					<?php elseif ( $has_id ) : ?>
+						<span class="slx-status is-off" id="storylane-repx-status"><span class="slx-dot" aria-hidden="true"></span><?php esc_html_e( 'RepX is off', 'storylane-repx' ); ?></span>
+						<span class="slx-statusbar-note"><?php esc_html_e( 'Your script is saved. Visitors do not see RepX.', 'storylane-repx' ); ?></span>
+					<?php else : ?>
+						<span class="slx-status is-empty" id="storylane-repx-status"><span class="slx-dot" aria-hidden="true"></span><?php esc_html_e( 'Not set up yet', 'storylane-repx' ); ?></span>
+						<span class="slx-statusbar-note"><?php esc_html_e( 'Follow the two steps below.', 'storylane-repx' ); ?></span>
+					<?php endif; ?>
+				</div>
+				<?php if ( $live ) : ?>
+					<button type="submit" class="slx-btn slx-btn-outline" name="<?php echo esc_attr( $name ); ?>[action]" value="off"><?php esc_html_e( 'Turn off', 'storylane-repx' ); ?></button>
+				<?php elseif ( $has_id ) : ?>
+					<button type="submit" class="slx-btn slx-btn-outline" name="<?php echo esc_attr( $name ); ?>[action]" value="on"><?php esc_html_e( 'Turn on', 'storylane-repx' ); ?></button>
+				<?php endif; ?>
+			</section>
 			<ol class="slx-steps">
 				<li class="slx-step">
 					<span class="slx-step-num" aria-hidden="true">01</span>
@@ -270,17 +289,6 @@ function storylane_repx_render_page() {
 						</p>
 						<label class="slx-label" for="storylane-repx-script"><?php esc_html_e( 'RepX script', 'storylane-repx' ); ?></label>
 						<textarea id="storylane-repx-script" class="slx-input" name="<?php echo esc_attr( $name ); ?>[script]" rows="3" spellcheck="false" placeholder="<?php echo esc_attr( storylane_repx_script_tag( 'yourrepxid' ) ); ?>"><?php echo esc_textarea( storylane_repx_script_tag( $settings['id'] ) ); ?></textarea>
-						<div class="slx-status-row">
-							<?php if ( $live ) : ?>
-								<span class="slx-status is-live" id="storylane-repx-status"><span class="slx-dot" aria-hidden="true"></span><?php esc_html_e( 'RepX is live on this site', 'storylane-repx' ); ?></span>
-								<button type="submit" class="slx-btn slx-btn-outline" name="<?php echo esc_attr( $name ); ?>[action]" value="off"><?php esc_html_e( 'Turn off', 'storylane-repx' ); ?></button>
-							<?php elseif ( $has_id ) : ?>
-								<span class="slx-status is-off" id="storylane-repx-status"><span class="slx-dot" aria-hidden="true"></span><?php esc_html_e( 'RepX is off', 'storylane-repx' ); ?></span>
-								<button type="submit" class="slx-btn slx-btn-outline" name="<?php echo esc_attr( $name ); ?>[action]" value="on"><?php esc_html_e( 'Turn on', 'storylane-repx' ); ?></button>
-							<?php else : ?>
-								<span class="slx-status is-empty" id="storylane-repx-status"><span class="slx-dot" aria-hidden="true"></span><?php esc_html_e( 'Not set up yet', 'storylane-repx' ); ?></span>
-							<?php endif; ?>
-						</div>
 					</div>
 				</li>
 			</ol>

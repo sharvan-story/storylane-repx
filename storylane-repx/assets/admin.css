@@ -186,13 +186,32 @@
 	outline: none;
 }
 
-/* Status */
-.slx-status-row {
+/* Status bar: sits above the steps, not part of them. */
+.slx-statusbar {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
+	justify-content: space-between;
 	gap: 16px;
-	margin-top: 16px;
+	margin-bottom: 24px;
+	padding: 16px 16px 16px 24px;
+	background: var(--slx-white);
+	border: 1px solid var(--slx-light-yellow);
+	border-radius: 4px;
+}
+
+.slx-statusbar-text {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 16px;
+	min-width: 0;
+}
+
+.slx-statusbar-note {
+	color: var(--slx-type-secondary);
+	font-size: 14px;
+	line-height: 24px;
 }
 
 .slx-status {

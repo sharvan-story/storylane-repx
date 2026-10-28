@@ -22,7 +22,7 @@ define( 'STORYLANE_REPX_HANDLE', 'storylane-repx' );
 define( 'STORYLANE_REPX_SCRIPT_URL', 'https://js.storylane.io/js/v1/repx.js' );
 define( 'STORYLANE_REPX_ABOUT_URL', 'https://www.storylane.io/repx' );
 define( 'STORYLANE_REPX_SIGNUP_URL', 'https://app.storylane.io/signup' );
-define( 'STORYLANE_REPX_APP_URL', 'https://app.storylane.io/repx' );
+define( 'STORYLANE_REPX_APP_URL', 'https://app.storylane.io/repx-dashboard/settings/embed' );
 
 /**
  * Extract the RepX ID from the RepX script tag.

@@ -1,5 +1,5 @@
 === Storylane RepX: AI SDR & AI Sales Agent for Your Website ===
-Contributors: storylane
+Contributors: sharvantg
 Tags: ai-sdr, ai-bdr, ai-sales-agent, ai-chatbot, lead-generation
 Requires at least: 6.3
 Tested up to: 7.1

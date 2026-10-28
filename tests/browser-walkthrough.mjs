@@ -29,7 +29,7 @@ log("STEP3 page title:", await page.locator("h1").first().innerText());
 await page.fill("#storylane-repx-script", SNIPPET);
 await page.click("#submit");
 await page.waitForLoadState("domcontentloaded");
-expect(await page.locator("#storylane-repx-status").innerText() === "RepX is live on this site", "status shows RepX is live after first save");
+expect((await page.locator("#storylane-repx-status").innerText()).trim() === "RepX is live on this site", "status shows RepX is live after first save");
 const notice = await page.locator(".notice, .updated, .error").allInnerTexts();
 log("STEP3 notices:", JSON.stringify(notice));
 const v3 = await page.inputValue("#storylane-repx-script");
@@ -44,6 +44,19 @@ log("STEP4 notices:", JSON.stringify(await page.locator(".notice, .updated, .err
 const v4 = await page.inputValue("#storylane-repx-script");
 expect(v4 === SNIPPET, `bad value refused, old script kept (got "${v4}")`);
 await page.screenshot({ path: OUT + "2-bad-value.png", fullPage: true });
+
+// Switch: flipping it changes the status text before saving; saving takes RepX off the site.
+await page.click('label[for="storylane-repx-enabled"]');
+const offText = (await page.locator("#storylane-repx-status").innerText()).trim();
+expect(offText === "RepX is off", `switch flips the status text (got "${offText}")`);
+await page.click("#submit");
+await page.waitForLoadState("domcontentloaded");
+const offHtml = await (await fetch(`${BASE}/?nocache=${Date.now()}`, { headers: { cookie: "playground_auto_login_already_happened=1" } })).text();
+expect(!offHtml.includes("repx.js"), "after switching off and saving, RepX is not on the site");
+await page.screenshot({ path: OUT + "2b-switched-off.png", fullPage: true });
+await page.click('label[for="storylane-repx-enabled"]');
+await page.click("#submit");
+await page.waitForLoadState("domcontentloaded");
 
 // Step 5: the site itself.
 const anon = await browser.newContext({ viewport: { width: 1280, height: 900 } });

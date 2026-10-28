@@ -60,7 +60,7 @@ The settings page uses the Inter typeface by The Inter Project Authors, licensed
 2. Activate the plugin.
 3. Go to Settings > RepX.
 4. Paste your RepX script and click Save changes.
-5. To pause RepX later, click Turn off. Your script is kept.
+5. To pause RepX later, switch it off and click Save changes. Your script is kept.
 
 == Frequently Asked Questions ==
 

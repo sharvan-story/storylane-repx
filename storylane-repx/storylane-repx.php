@@ -27,7 +27,8 @@ define( 'STORYLANE_REPX_APP_URL', 'https://app.storylane.io/repx-dashboard/setti
 /**
  * Extract the RepX ID from the RepX script tag.
  *
- * Only the full script is accepted: it must load js.storylane.io/js/v1/repx.js and carry a data-id.
+ * Only the full script is accepted: it must load js.storylane.io/js/v1/repx.js and carry a data-id,
+ * either as an attribute or as ?data-id= in the script address.
  *
  * @param string $input Raw user input.
  * @return string Valid lowercase ID, or an empty string if the input is not a RepX script.
@@ -37,10 +38,14 @@ function storylane_repx_extract_id( $input ) {
 	if ( false === stripos( $input, 'js.storylane.io/js/v1/repx.js' ) ) {
 		return '';
 	}
-	if ( ! preg_match( '/data-id\s*=\s*(["\'])(.*?)\1/i', $input, $matches ) ) {
-		return '';
+	// Either form: data-id="..." as an attribute, or repx.js?data-id=... in the script address.
+	if ( preg_match( '/\sdata-id\s*=\s*(["\'])(.*?)\1/i', $input, $matches ) ) {
+		return storylane_repx_validate_id( $matches[2] );
 	}
-	return storylane_repx_validate_id( $matches[2] );
+	if ( preg_match( '/repx\.js\?(?:[^"\'\s>]*&(?:amp;)?)?data-id=([^&"\'\s>]*)/i', $input, $matches ) ) {
+		return storylane_repx_validate_id( $matches[1] );
+	}
+	return '';
 }
 
 /**

@@ -39,6 +39,8 @@ echo "$out" | grep -qi "Settings saved" && ok "success notice shown" || no "succ
 f="$(field)"; [[ "$f" == *'data-id=&quot;mbtx79fn0yum&quot;'* || "$f" == *'data-id="mbtx79fn0yum"'* ]] && ok "script saved, box shows the full script with the ID" || no "script save: [$f]"
 [[ "$f" == *js.storylane.io/js/v1/repx.js* ]] && ok "box shows a script, not a bare ID" || no "box content"
 out="$(save "<script data-id='abcdef123' src='https://js.storylane.io/js/v1/repx.js'></script>" on)"; f="$(field)"; [[ "$f" == *abcdef123* ]] && ok "single-quoted script" || no "single quotes"
+save '<script src="https://js.storylane.io/js/v1/repx.js?data-id=qparam123" async></script>' on >/dev/null; f="$(field)"
+[[ "$f" == *'data-id=&quot;qparam123&quot;'* || "$f" == *'data-id="qparam123"'* ]] && ok "accepts ?data-id= in the script address" || no "query form: [$f]"
 save "$(tag mbtx79fn0yum)" on >/dev/null
 for bad in 'mbtx79fn0yum' 'not a valid script!!' '<script src="https://example.com/x.js" data-id="mbtx79fn0yum"></script>' "$(tag ab)"; do
   out="$(save "$bad")"

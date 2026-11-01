@@ -12,6 +12,8 @@ import { mkdirSync } from "node:fs";
 const OUT = process.env.SHOTS || "/tmp/repx-wp-shots/";
 mkdirSync(OUT, { recursive: true });
 const SNIPPET = '<script src="https://js.storylane.io/js/v1/repx.js" data-id="mbtx79fn0yum" async></script>';
+// After saving, the box shows the script's address (no script tag is built in PHP).
+const SHOWN = "https://js.storylane.io/js/v1/repx.js?data-id=mbtx79fn0yum";
 const log = (...a) => console.log(...a);
 
 const browser = await chromium.launch();
@@ -33,7 +35,7 @@ expect((await page.locator("#storylane-repx-status").innerText()).trim() === "Re
 const notice = await page.locator(".notice, .updated, .error").allInnerTexts();
 log("STEP3 notices:", JSON.stringify(notice));
 const v3 = await page.inputValue("#storylane-repx-script");
-expect(v3 === SNIPPET, `first save shows the RepX script back (got "${v3}")`);
+expect(v3 === SHOWN, `first save shows the RepX script address back (got "${v3}")`);
 await page.screenshot({ path: OUT + "1-settings-saved.png", fullPage: true });
 
 // Step 4: bad value is refused, old value kept.
@@ -42,7 +44,7 @@ await page.click("#submit");
 await page.waitForLoadState("domcontentloaded");
 log("STEP4 notices:", JSON.stringify(await page.locator(".notice, .updated, .error").allInnerTexts()));
 const v4 = await page.inputValue("#storylane-repx-script");
-expect(v4 === SNIPPET, `bad value refused, old script kept (got "${v4}")`);
+expect(v4 === SHOWN, `bad value refused, old script kept (got "${v4}")`);
 await page.screenshot({ path: OUT + "2-bad-value.png", fullPage: true });
 
 // Turn off RepX: one click takes it off the site and the status says so.

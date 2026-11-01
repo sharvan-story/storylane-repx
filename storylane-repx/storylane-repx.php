@@ -60,16 +60,19 @@ function storylane_repx_validate_id( $id ) {
 }
 
 /**
- * The RepX script tag for a saved ID, shown back in the settings box.
+ * The RepX script address for a saved ID, shown back in the settings box.
+ *
+ * Shown as the script's address (repx.js?data-id=…), which the settings box accepts like the full
+ * script. The site itself loads RepX with wp_enqueue_script(); see storylane_repx_enqueue().
  *
  * @param string $id RepX ID.
- * @return string Script tag, or an empty string when there is no ID.
+ * @return string Script address, or an empty string when there is no ID.
  */
-function storylane_repx_script_tag( $id ) {
+function storylane_repx_script_address( $id ) {
 	if ( '' === $id ) {
 		return '';
 	}
-	return '<script src="' . STORYLANE_REPX_SCRIPT_URL . '" data-id="' . $id . '" async></script>';
+	return add_query_arg( 'data-id', rawurlencode( $id ), STORYLANE_REPX_SCRIPT_URL );
 }
 
 /**
@@ -275,7 +278,7 @@ function storylane_repx_render_page() {
 							</a>
 						</p>
 						<label class="slx-label" for="storylane-repx-script"><?php esc_html_e( 'RepX script', 'storylane-repx' ); ?></label>
-						<textarea id="storylane-repx-script" class="slx-input" name="<?php echo esc_attr( $name ); ?>[script]" rows="3" spellcheck="false" placeholder="<?php echo esc_attr( storylane_repx_script_tag( 'yourrepxid' ) ); ?>"><?php echo esc_textarea( storylane_repx_script_tag( $settings['id'] ) ); ?></textarea>
+						<textarea id="storylane-repx-script" class="slx-input" name="<?php echo esc_attr( $name ); ?>[script]" rows="3" spellcheck="false" placeholder="<?php esc_attr_e( 'Paste your RepX script here', 'storylane-repx' ); ?>"><?php echo esc_textarea( storylane_repx_script_address( $settings['id'] ) ); ?></textarea>
 					</div>
 				</li>
 			</ol>

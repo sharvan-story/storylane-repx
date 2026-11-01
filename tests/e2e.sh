@@ -36,11 +36,15 @@ echo "== Test 2: saving"
 save "$(tag resetid000)" on >/dev/null; f="$(field)"; [[ "$f" == *resetid000* ]] && ok "reset to sentinel ID" || no "reset to sentinel ID: [$f]"
 out="$(save '<script src="https://js.storylane.io/js/v1/repx.js" data-id="MBTX79fn0yum" async></script>' on)"
 echo "$out" | grep -qi "Settings saved" && ok "success notice shown" || no "success notice"
-f="$(field)"; [[ "$f" == *'data-id=&quot;mbtx79fn0yum&quot;'* || "$f" == *'data-id="mbtx79fn0yum"'* ]] && ok "script saved, box shows the full script with the ID" || no "script save: [$f]"
+f="$(field)"; [[ "$f" == *'repx.js?data-id=mbtx79fn0yum'* ]] && ok "script saved, box shows the script address with the ID" || no "script save: [$f]"
+box="$(echo "$f" | sed -E 's/.*<textarea[^>]*>//; s/<\/textarea>.*//')"; [[ "$box" != *script* ]] && ok "box holds no script tag: [$box]" || no "box still shows a script tag: [$box]"
 [[ "$f" == *js.storylane.io/js/v1/repx.js* ]] && ok "box shows a script, not a bare ID" || no "box content"
 out="$(save "<script data-id='abcdef123' src='https://js.storylane.io/js/v1/repx.js'></script>" on)"; f="$(field)"; [[ "$f" == *abcdef123* ]] && ok "single-quoted script" || no "single quotes"
 save '<script src="https://js.storylane.io/js/v1/repx.js?data-id=qparam123" async></script>' on >/dev/null; f="$(field)"
-[[ "$f" == *'data-id=&quot;qparam123&quot;'* || "$f" == *'data-id="qparam123"'* ]] && ok "accepts ?data-id= in the script address" || no "query form: [$f]"
+[[ "$f" == *'repx.js?data-id=qparam123'* ]] && ok "accepts ?data-id= in the script address" || no "query form: [$f]"
+# The box shows the address; saving it back unchanged must keep the same ID.
+save 'https://js.storylane.io/js/v1/repx.js?data-id=qparam123' on >/dev/null; f="$(field)"
+[[ "$f" == *'repx.js?data-id=qparam123'* ]] && ok "re-saving the shown address keeps the ID" || no "re-save of shown address: [$f]"
 save "$(tag mbtx79fn0yum)" on >/dev/null
 for bad in 'mbtx79fn0yum' 'not a valid script!!' '<script src="https://example.com/x.js" data-id="mbtx79fn0yum"></script>' "$(tag ab)"; do
   out="$(save "$bad")"

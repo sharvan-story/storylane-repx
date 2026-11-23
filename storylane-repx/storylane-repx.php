@@ -210,12 +210,13 @@ function storylane_repx_admin_assets( $hook ) {
 add_action( 'admin_enqueue_scripts', 'storylane_repx_admin_assets' );
 
 /**
- * Small "opens in a new tab" icon.
- *
- * @return string SVG markup.
+ * Print the "opens in a new tab" icon and its screen-reader text.
+ * Static markup; the text is escaped as it is printed.
  */
-function storylane_repx_external_icon() {
-	return '<svg class="slx-ext" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3H3.5A1.5 1.5 0 0 0 2 4.5v8A1.5 1.5 0 0 0 3.5 14h8a1.5 1.5 0 0 0 1.5-1.5V10M9 2h5v5M14 2 7.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function storylane_repx_new_tab_hint() {
+	?>
+	<svg class="slx-ext" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3H3.5A1.5 1.5 0 0 0 2 4.5v8A1.5 1.5 0 0 0 3.5 14h8a1.5 1.5 0 0 0 1.5-1.5V10M9 2h5v5M14 2 7.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'storylane-repx' ); ?></span>
+	<?php
 }
 
 /**
@@ -229,7 +230,6 @@ function storylane_repx_render_page() {
 	$name     = STORYLANE_REPX_OPTION;
 	$has_id   = '' !== $settings['id'];
 	$live     = $has_id && $settings['enabled'];
-	$new_tab  = '<span class="screen-reader-text">' . esc_html__( '(opens in a new tab)', 'storylane-repx' ) . '</span>';
 	?>
 	<div class="wrap slx">
 		<header class="slx-header">
@@ -239,10 +239,27 @@ function storylane_repx_render_page() {
 			</h1>
 			<p class="slx-lede">
 				<?php
-				printf(
-					/* translators: %s: link to the RepX product page. */
-					esc_html__( '%s is an AI sales agent from Storylane. It answers buyer questions, qualifies leads and books demos on your site.', 'storylane-repx' ),
-					'<a href="' . esc_url( STORYLANE_REPX_ABOUT_URL ) . '" target="_blank" rel="noopener noreferrer">RepX' . $new_tab . '</a>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts above.
+				$repx_link = sprintf(
+					'<a href="%1$s" target="_blank" rel="noopener noreferrer">RepX<span class="screen-reader-text">%2$s</span></a>',
+					esc_url( STORYLANE_REPX_ABOUT_URL ),
+					esc_html__( '(opens in a new tab)', 'storylane-repx' )
+				);
+				echo wp_kses(
+					sprintf(
+						/* translators: %s: link to the RepX product page. */
+						esc_html__( '%s is an AI sales agent from Storylane. It answers buyer questions, qualifies leads and books demos on your site.', 'storylane-repx' ),
+						$repx_link
+					),
+					array(
+						'a'    => array(
+							'href'   => true,
+							'target' => true,
+							'rel'    => true,
+						),
+						'span' => array(
+							'class' => true,
+						),
+					)
 				);
 				?>
 			</p>
@@ -261,7 +278,7 @@ function storylane_repx_render_page() {
 						<p class="slx-actions">
 							<a class="slx-btn slx-btn-outline" href="<?php echo esc_url( STORYLANE_REPX_SIGNUP_URL ); ?>" target="_blank" rel="noopener noreferrer">
 								<?php esc_html_e( 'Sign up for RepX', 'storylane-repx' ); ?>
-								<?php echo storylane_repx_external_icon() . $new_tab; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+								<?php storylane_repx_new_tab_hint(); ?>
 							</a>
 						</p>
 					</div>
@@ -274,7 +291,7 @@ function storylane_repx_render_page() {
 							<?php esc_html_e( 'Copy your RepX script from Storylane and paste it below.', 'storylane-repx' ); ?>
 							<a class="slx-link" href="<?php echo esc_url( STORYLANE_REPX_APP_URL ); ?>" target="_blank" rel="noopener noreferrer">
 								<?php esc_html_e( 'Get your script', 'storylane-repx' ); ?>
-								<?php echo storylane_repx_external_icon() . $new_tab; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+								<?php storylane_repx_new_tab_hint(); ?>
 							</a>
 						</p>
 						<label class="slx-label" for="storylane-repx-script"><?php esc_html_e( 'RepX script', 'storylane-repx' ); ?></label>
